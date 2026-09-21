@@ -1,0 +1,20 @@
+{
+  "name": "playbook-builder-for-ai",
+  "version": "1.1.3",
+  "description": "Turns a natural-language goal into a detailed, testable, reusable AI playbook: discover intent, compile the procedure, visualize, export, test, publish, execute, with every playbook kept in its own self-contained folder. Runs on local models (Ollama) or cloud models, on Windows, macOS and Linux. Powered By SiliBlue.in",
+  "type": "module",
+  "private": true,
+  "main": "server.js",
+  "scripts": {
+    "dev": "node launcher/launch.js --dev",
+    "launch": "node launcher/launch.js",
+    "start": "node server.js",
+    "build": "node launcher/check.js",
+    "setup": "node launcher/setup.js",
+    "test": "node test/selftest.js"
+  },
+  "engines": {
+    "node": ">=18.17"
+  },
+  "license": "UNLICENSED"
+}

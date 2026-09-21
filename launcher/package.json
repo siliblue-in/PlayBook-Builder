@@ -1,0 +1,7 @@
+{
+  "name": "playbook-builder-launcher",
+  "private": true,
+  "description": "Universal launcher for Playbook Builder for AI: the same Node.js code starts the app on Windows, macOS and Linux.",
+  "type": "module",
+  "main": "launch.js"
+}
