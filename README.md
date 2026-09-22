@@ -16,7 +16,7 @@ Goal → short dynamic questions → confirmed intent → compiled playbook → 
 
 ## Launch Playbook Builder
 
-The same four steps on **Windows, macOS and Linux**. There are no `.bat`, `.sh` or `.command` files to run.
+The same four steps on **Windows, macOS and Linux**.
 
 ### 1. Install Node.js
 
