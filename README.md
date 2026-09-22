@@ -259,33 +259,6 @@ The same on every platform: `npm run launch -- --port 4318` (or `npm start -- --
 - The server listens on localhost only, rejects foreign `Host` headers, and blocks cross-origin writes.
 - **Production Actions is off by default**, so external side effects (HTTP writes) are simulated and logged. **Human Approval is on by default**, so approval steps and external actions pause for a person. Draft versions only run in the sandbox.
 
-## Self-test
-
-```bash
-npm test
-```
-
-This runs 331 end-to-end checks through the real HTTP API with a scripted offline AI provider. It covers discovery, compilation with the quality-gate repair loop, normalization of messy AI output, deterministic and AI test modes, the 19/20 WARNING case, the `>` vs `>=` failure and its verified fix, versioning, publishing, approvals, scheduling, webhooks, exports and feature switches — plus, since v1.3.0, lenient structured comparison of AI output, scheduler day handling, crash recovery for interrupted runs, oversized-body and malformed-path handling, and the browser poll's retry behaviour — and, since v1.4.0, the Ollama empty-response fix for thinking-capable models: the qwen3.5 regressions (native `/api/chat` with top-level `think:false`, `reasoning_effort:"none"` on the compatible path, endpoint-switching retries, classified empty responses), the model compatibility harness and the Local Only no-cloud-fallback guarantee — since v1.4.1, the background-safe creation regressions (module-scope generation tasks, re-attach instead of duplicate compiles, the corner progress card) and the smooth-loader regressions (in-place progress painting, spinner phase synchronization, compositor promotion) — since v1.5.0, the cloud API aggregators: the preset registry (NVIDIA, AMD, Google, Groq, Together, DeepInfra, Fireworks, Mistral, Cerebras, xAI, GitHub Models, custom OpenAI-compatible), base-URL defaulting and overriding, the generic /models key check, per-preset headers, keyless custom endpoints and the compatibility harness against a saved cloud connection — and, since v1.6.0, the Anthropic native Messages API against a fake Anthropic server (headers, system/max_tokens wiring, tool_use mapping, empty/auth error classification, the compatibility harness) plus the Ollama context window (storage and validation, native-first routing with `num_ctx` + `keep_alive` on the wire, draft-path application, tool requests carrying `num_ctx`) and the configurable AI request timeout (default, range validation, service injection, no hardcoded caps) — and, since v1.7.0, the live pipeline progress registry (step numbering, detail lines, failure marking, 404 handling, a full compile observed through `/api/progress`), the `max_tokens` clamp to the connection's context window on the wire, and planned + batched AI test generation with a scripted batch failure that is skipped while healthy batches still add tests — and, since v1.1.3, the transport regressions (the local provider no longer uses `fetch`, a closed port answers `SERVER_UNREACHABLE`, a silent server answers retryable `TIMEOUT` with the new wording), the PC performance tiers (catalog with VRAM/RAM requirements and 4/8/16 caps, storage, validation, the tier cap observed on the wire with a low-tier connection, the 409 duplicate-compile guard) and the served UI markers for the tier selector, tier info box and the reload-proof `bg-tasks` module.
-
-32 checks cover Local AI against a fake Ollama server over real HTTP: model detection, capability checks, the connection test, the no-models and unreachable-server states, Privacy Mode enforcement, the built-in repeatability test, and a complete discovery → compile → test → export pipeline driven entirely by the local model. A further 27 checks (a fake server that reproduces the reported qwen3.5 bug) prove the v1.4.0 empty-response fix end to end: reasoning control on both endpoints, retry-then-switch behaviour, the classified error message, the compatibility harness verdicts and the four-artifact guarantees.
-
-26 checks cover the universal launcher by starting real processes:
-- the npm scripts, and the per-platform browser commands for Windows, macOS, Linux and WSL
-- readiness before the browser opens, detection of a copy that is already running, and a clean Ctrl+C
-- readable errors, with no stack trace, for a busy port, an unusable data folder and an invalid port
-- `npm start`, `npm run dev`, `npm run build` and `npm run setup`
-- a single source for the version number
-
-54 checks cover the playbook workspaces:
-- the folder structure and every generated file, with safe names and same-name playbooks
-- one `executions/run-NNN` per run that names its exact version, plus results, test reports and repeatability files
-- uploads that only go into `inputs/`, and production runs that refuse test and sample data
-- path attacks, cross-playbook access and links out of the folder
-- confirmation for playbook files, protection for the standard folders, and a locked file that does not block the rest
-- renaming, duplicating and deleting playbooks
-- the Local-workspace vs AI-transport privacy information, and a scan that finds no API key or webhook token in any folder
-- the `.zip` package round trip, imports that never run anything, and rejected unsafe or damaged packages
-- upgrading an existing data folder
 
 ## Project structure
 
@@ -336,13 +309,13 @@ CHANGELOG.md               what changed in each version
 - **"Production runs only read inputs/runtime"**: the file you picked is sample or test data. Add the real data under **Runtime** in the Files tab, or run in the sandbox.
 
 ## Limits worth knowing
-
+- Currently ollama integration is not active
 - Tool bindings are generic: `input` (data supplied with the run), `http_request` (a real HTTP API) and `builtin` (`current_datetime`). There are no built-in CRM or database connectors. Supply that data in the run input, or point a tool at an HTTP endpoint.
 - Scheduled playbooks run only while the app is running.
 - AI-mode results depend on the chosen model. That is exactly what repeatability and rule-adherence testing measure. Small local models drift more: compile with the largest model you can run, then use repeatability testing before you publish.
 - Local generation needs a large context window. Playbook JSON is long, so a 2k-context model will fail at generation even though it passes the connection test. When you set **Context window (num_ctx)** on a local connection, the app automatically keeps the requested output tokens to half of that window so prompt + answer always fit — if a playbook still comes back cut off, raise `num_ctx` or pick a smaller playbook scope.
 - Watch the **Create** screen while generating: every step shows a real "1 of 4" counter with live detail ("Attempt 2 of 3", "12/16 checks passed · repairing gaps", "Batch 2 of 5 — 8 of 20 tests written"). If a step fails, the failing step is marked red and the error banner explains why.
-- Generation always runs in the background and survives **anything the UI does** — sidebar navigation, a full page reload, even an app restart (the run is remembered in `localStorage` and the server-side progress job is probed at boot). Reopening the Create screen re-attaches to the live run; a second compile for the same session is refused with `409 already_running` instead of queueing two pipelines against one local model.
+- PlayBook Generation Process gets killed if we transition during the playbook generation **anything the UI does** — sidebar navigation, a full page reload, even an app restart (the run is remembered in `localStorage` and the server-side progress job is probed at boot). Reopening the Create screen re-attaches to the live run; a second compile for the same session is refused with `409 already_running` instead of queueing two pipelines against one local model.
 - This is a single-user, local application.
 - Input files can be up to 20 MB each (10 MB for a file used as run input). Imported packages can be up to 200 MB unpacked.
 - The version shown in the sidebar (and returned by `/api/health`) comes from `package.json`. Quote it when you ask for support.
